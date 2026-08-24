@@ -563,6 +563,7 @@ button{
   height:100%;
   object-fit:cover;
   background:#000;
+  transform:none;
 }
 
 .camera-top{
@@ -850,6 +851,41 @@ button{
       <button data-filter="sepia(.5) contrast(1.08)" class="filter-chip">
         📼 Vintage
       </button>
+      <button
+  data-filter="brightness(1.18) contrast(.94) saturate(1.08)"
+  class="filter-chip">
+  🍬 Sweet
+</button>
+
+<button
+  data-filter="brightness(1.22) contrast(.9) saturate(1.05)"
+  class="filter-chip">
+  ☀️ Bright
+</button>
+
+<button
+  data-filter="brightness(1.1) contrast(.88) saturate(.95)"
+  class="filter-chip">
+  🌸 Soft
+</button>
+
+<button
+  data-filter="contrast(1.18) saturate(1.28)"
+  class="filter-chip">
+  🎬 Cinematic
+</button>
+
+<button
+  data-filter="saturate(1.45) contrast(1.08)"
+  class="filter-chip">
+  🌈 Vivid
+</button>
+
+<button
+  data-filter="brightness(.92) contrast(1.22) saturate(.85)"
+  class="filter-chip">
+  🌙 Moody
+</button>
     </div>
 
     <button id="recordBtn" class="record-btn" type="button">
@@ -1537,6 +1573,143 @@ document.querySelectorAll(".filter-chip").forEach(button => {
   });
 
 });
+  const recordBtn = document.getElementById("recordBtn");
+const recordHint = document.querySelector(".record-hint");
+
+let mediaRecorder = null;
+let recordedChunks = [];
+let isRecording = false;
+let recordTimer = null;
+let recordedSeconds = 0;
+
+recordBtn.addEventListener("click", function(){
+
+  if(!cameraStream){
+    showToast("Camera open nahi hai");
+    return;
+  }
+
+  if(isRecording){
+    stopRecording();
+  } else {
+    startRecording();
+  }
+
+});
+
+
+function startRecording(){
+
+  recordedChunks = [];
+  recordedSeconds = 0;
+
+  try{
+
+    mediaRecorder = new MediaRecorder(cameraStream);
+
+  } catch(error){
+
+    console.error(error);
+    showToast("Recording supported nahi hai");
+    return;
+
+  }
+
+  mediaRecorder.ondataavailable = function(event){
+
+    if(event.data && event.data.size > 0){
+      recordedChunks.push(event.data);
+    }
+
+  };
+
+
+  mediaRecorder.onstop = function(){
+
+    const mimeType =
+      mediaRecorder.mimeType || "video/webm";
+
+    const blob = new Blob(
+      recordedChunks,
+      {type:mimeType}
+    );
+
+    if(currentVideoURL){
+      URL.revokeObjectURL(currentVideoURL);
+    }
+
+    currentVideoURL = URL.createObjectURL(blob);
+
+    creatorVideo.src = currentVideoURL;
+    creatorVideo.load();
+
+    videoStage.classList.add("show");
+
+    stopCamera();
+
+    creatorScreen.classList.add("show");
+
+    showToast("Video recorded ✅");
+
+  };
+
+
+  mediaRecorder.start(250);
+
+  isRecording = true;
+
+  recordBtn.classList.add("recording");
+
+  recordHint.textContent = "00:00 • Tap to stop";
+
+
+  recordTimer = setInterval(function(){
+
+    recordedSeconds++;
+
+    const minutes =
+      String(Math.floor(recordedSeconds / 60))
+      .padStart(2,"0");
+
+    const seconds =
+      String(recordedSeconds % 60)
+      .padStart(2,"0");
+
+    recordHint.textContent =
+      minutes + ":" + seconds + " • Tap to stop";
+
+    if(recordedSeconds >= 60){
+      stopRecording();
+    }
+
+  },1000);
+
+}
+
+
+function stopRecording(){
+
+  if(!isRecording){
+    return;
+  }
+
+  isRecording = false;
+
+  clearInterval(recordTimer);
+  recordTimer = null;
+
+  recordBtn.classList.remove("recording");
+
+  recordHint.textContent = "Processing...";
+
+  if(mediaRecorder &&
+     mediaRecorder.state !== "inactive"){
+
+    mediaRecorder.stop();
+
+  }
+
+}
 </script>
 
 </body>
