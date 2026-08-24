@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08090d">
+
+<title>ReelSathi</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  margin:0;
+  background:#08090d;
+  color:#fff;
+  font-family:Arial,sans-serif;
+  overscroll-behavior:none;
+}
+
+button{
+  font-family:inherit;
+}
+
+.app{
+  max-width:500px;
+  margin:auto;
+  min-height:100vh;
+}
+
+.topbar{
+  position:fixed;
+  top:0;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:20;
+  width:100%;
+  max-width:500px;
+  padding:15px 16px 10px;
+  background:linear-gradient(
+    to bottom,
+    rgba(8,9,13,.98),
+    rgba(8,9,13,.75),
+    transparent
+  );
+}
+
+.brand{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  font-size:26px;
+  font-weight:900;
+}
+
+.logo span{
+  color:#ff3d81;
+}
+
+.daily{
+  border:1px solid #34343d;
+  border-radius:20px;
+  background:#17171e;
+  color:#fff;
+  padding:8px 12px;
+  font-size:12px;
+}
+
+.categories{
+  display:flex;
+  gap:8px;
+  margin-top:13px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+
+.categories::-webkit-scrollbar{
+  display:none;
+}
+
+.chip{
+  flex:0 0 auto;
+  border:1px solid #30303a;
+  background:#15151c;
+  color:#bbbcc6;
+  padding:9px 13px;
+  border-radius:20px;
+  font-size:13px;
+}
+
+.chip.active{
+  background:#fff;
+  color:#111;
+  border-color:#fff;
+  font-weight:bold;
+}
+
+.feed{
+  height:100vh;
+  overflow-y:auto;
+  scroll-snap-type:y mandatory;
+  scrollbar-width:none;
+}
+
+.feed::-webkit-scrollbar{
+  display:none;
+}
+
+.reel-card{
+  position:relative;
+  height:100vh;
+  scroll-snap-align:start;
+  overflow:hidden;
+  background:#15151c;
+}
+
+.bg{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 75% 25%,rgba(255,61,129,.6),transparent 28%),
+    radial-gradient(circle at 20% 75%,rgba(91,67,255,.7),transparent 35%),
+    linear-gradient(145deg,#11121a,#08090d);
+}
+
+.bg.two{
+  background:
+    radial-gradient(circle at 25% 20%,rgba(0,210,255,.5),transparent 30%),
+    radial-gradient(circle at 75% 75%,rgba(118,75,255,.65),transparent 35%),
+    linear-gradient(145deg,#11141d,#07080d);
+}
+
+.bg.three{
+  background:
+    radial-gradient(circle at 75% 25%,rgba(255,177,0,.55),transparent 27%),
+    radial-gradient(circle at 25% 70%,rgba(255,67,67,.55),transparent 38%),
+    linear-gradient(145deg,#17110d,#08090d);
+}
+
+.pattern{
+  position:absolute;
+  inset:0;
+  opacity:.16;
+  background-image:
+    linear-gradient(rgba(255,255,255,.15) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.15) 1px,transparent 1px);
+  background-size:35px 35px;
+}
+
+.center-content{
+  position:absolute;
+  left:25px;
+  right:25px;
+  top:48%;
+  transform:translateY(-50%);
+}
+
+.badge{
+  display:inline-block;
+  padding:7px 11px;
+  border-radius:20px;
+  background:rgba(0,0,0,.38);
+  border:1px solid rgba(255,255,255,.2);
+  font-size:12px;
+  margin-bottom:14px;
+}
+
+.hook-label{
+  color:#dadbe3;
+  font-size:12px;
+  font-weight:bold;
+  letter-spacing:1px;
+}
+
+.hook{
+  margin-top:9px;
+  font-size:32px;
+  line-height:1.14;
+  font-weight:900;
+  max-width:390px;
+}
+
+.meta{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:16px;
+}
+
+.meta span{
+  background:rgba(0,0,0,.35);
+  padding:7px 10px;
+  border-radius:10px;
+  font-size:12px;
+  color:#e4e4e8;
+}
+
+.card-bottom{
+  position:absolute;
+  left:18px;
+  right:18px;
+  bottom:28px;
+}
+
+.idea-title{
+  font-weight:bold;
+  font-size:16px;
+  margin-bottom:11px;
+}
+
+.actions{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+}
+
+.use-btn{
+  border:0;
+  background:#ff3d81;
+  color:#fff;
+  border-radius:14px;
+  padding:15px;
+  font-size:15px;
+  font-weight:bold;
+}
+
+.save-btn{
+  width:52px;
+  border:1px solid #41414b;
+  background:rgba(12,12,16,.7);
+  color:#fff;
+  border-radius:14px;
+  font-size:20px;
+}
+
+.swipe{
+  margin-top:10px;
+  text-align:center;
+  color:#aaaab2;
+  font-size:11px;
+}
+
+.sheet-backdrop{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:50;
+  background:rgba(0,0,0,.68);
+}
+
+.sheet-backdrop.show{
+  display:block;
+}
+
+.sheet{
+  position:absolute;
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%);
+  width:100%;
+  max-width:500px;
+  max-height:90vh;
+  overflow-y:auto;
+  background:#121218;
+  border-radius:24px 24px 0 0;
+  padding:15px 18px 30px;
+}
+
+.handle{
+  width:45px;
+  height:5px;
+  background:#464650;
+  border-radius:20px;
+  margin:0 auto 20px;
+}
+
+.close{
+  float:right;
+  border:0;
+  color:#fff;
+  background:#282830;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  font-size:18px;
+}
+
+.sheet-category{
+  color:#ff4d89;
+  font-size:13px;
+  font-weight:bold;
+}
+
+.sheet h2{
+  margin:10px 45px 20px 0;
+  font-size:25px;
+}
+
+.section{
+  background:#1b1b23;
+  border:1px solid #292932;
+  border-radius:15px;
+  padding:15px;
+  margin:12px 0;
+}
+
+.section-title{
+  color:#999aa5;
+  font-size:11px;
+  font-weight:bold;
+  letter-spacing:1px;
+  margin-bottom:8px;
+}
+
+.section-content{
+  line-height:1.55;
+  white-space:pre-line;
+}
+
+.sheet-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:16px;
+}
+
+.sheet-actions button{
+  border:0;
+  padding:14px 8px;
+  border-radius:13px;
+  font-weight:bold;
+  font-size:14px;
+}
+
+.copy-btn{
+  background:#fff;
+  color:#111;
+}
+
+.share-btn{
+  background:#25d366;
+  color:#fff;
+}
+
+.toast{
+  visibility:hidden;
+  opacity:0;
+  position:fixed;
+  z-index:100;
+  left:50%;
+  bottom:25px;
+  transform:translateX(-50%);
+  background:#fff;
+  color:#111;
+  padding:11px 16px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:bold;
+  transition:.2s;
+}
+
+.toast.show{
+  visibility:visible;
+  opacity:1;
+}
+
+.empty{
+  display:flex;
+  height:100vh;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:30px;
+  color:#bcbcc5;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <header class="topbar">
+
+    <div class="brand">
+      <div class="logo">Reel<span>Sathi</span> ✨</div>
+      <button class="daily">🔥 Daily Ideas</button>
+    </div>
+
+    <div class="categories">
+      <button class="chip active" data-filter="All">For You</button>
+      <button class="chip" data-filter="Comedy">😂 Comedy</button>
+      <button class="chip" data-filter="Motivation">🔥 Motivation</button>
+      <button class="chip" data-filter="Facts">🧠 Facts</button>
+      <button class="chip" data-filter="Business">💸 Business</button>
+      <button class="chip" data-filter="Attitude">😎 Attitude</button>
+      <button class="chip" data-filter="Student">📚 Student</button>
+    </div>
+
+  </header>
+
+  <main id="feed" class="feed"></main>
+
+</div>
+
+
+<div id="sheetBackdrop" class="sheet-backdrop">
+
+  <div class="sheet">
+
+    <div class="handle"></div>
+
+    <button id="closeSheet" class="close">×</button>
+
+    <div id="sheetCategory" class="sheet-category"></div>
+
+    <h2 id="sheetTitle"></h2>
+
+    <div class="section">
+      <div class="section-title">🎣 HOOK — FIRST 3 SECONDS</div>
+      <div id="sheetHook" class="section-content"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">🎬 15–30 SEC SCRIPT</div>
+      <div id="sheetScript" class="section-content"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">📹 SHOT PLAN</div>
+      <div id="sheetShots" class="section-content"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">✍️ CAPTION</div>
+      <div id="sheetCaption" class="section-content"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">#️⃣ HASHTAGS</div>
+      <div id="sheetHashtags" class="section-content"></div>
+    </div>
+
+    <div class="sheet-actions">
+      <button id="copyIdea" class="copy-btn">📋 Copy All</button>
+      <button id="shareIdea" class="share-btn">↗ Share</button>
+    </div>
+
+  </div>
+
+</div>
+
+<div id="toast" class="toast">Saved ✅</div>
+
+
+<script>
+
+const ideas = [
+
+{
+  id:1,
+  category:"Student",
+  emoji:"📚",
+  theme:"one",
+  title:"Middle Class Student POV",
+  hook:"Har middle-class student is feeling ko samjhega…",
+  script:"Jab sapne bade ho, lekin pocket money chhoti ho… tab har decision calculator se nahi, dil aur budget dono se hota hai. 😅",
+  shots:"1. Books/table ka close shot\n2. Empty wallet reaction\n3. Laptop ya phone par dream goal\n4. Camera ki taraf smile",
+  caption:"Middle class ho, dreams class se bahar ke. ❤️",
+  hashtags:"#studentlife #middleclass #hindireels #relatable #reelideas",
+  duration:"15 sec",
+  difficulty:"Easy"
+},
+
+{
+  id:2,
+  category:"Motivation",
+  emoji:"🔥",
+  theme:"two",
+  title:"Nobody Is Coming",
+  hook:"Ek baat jaldi samajh lo: tumhe bachane koi nahi aa raha.",
+  script:"Motivation ka wait mat karo. Chhota step lo, phir agla. Ek saal baad tum ya to excuses ke saath hoge, ya results ke saath.",
+  shots:"1. Alarm clock\n2. Shoes pehente hue\n3. Work/study shot\n4. Walking away shot",
+  caption:"Discipline > Motivation. Har din. 🔥",
+  hashtags:"#motivation #discipline #selfgrowth #hindimotivation #reels",
+  duration:"20 sec",
+  difficulty:"Easy"
+},
+
+{
+  id:3,
+  category:"Comedy",
+  emoji:"😂",
+  theme:"three",
+  title:"Mummy vs Online Shopping",
+  hook:"POV: Parcel aaya aur mummy ne gate khol diya…",
+  script:"Mummy: Phir se parcel?\nMain: Nahi mummy, ye purane parcel ka update hai.\nMummy: Box ke andar update aata hai? 😂",
+  shots:"1. Doorbell reaction\n2. Parcel hide karte hue\n3. Mummy reaction acting\n4. Freeze-frame ending",
+  caption:"Ye situation ghar ghar ki hai. 😂",
+  hashtags:"#comedyreels #desicomedy #mummy #relatable #hindireels",
+  duration:"12 sec",
+  difficulty:"Easy"
+},
+
+{
+  id:4,
+  category:"Facts",
+  emoji:"🧠",
+  theme:"two",
+  title:"Phone Battery Fact",
+  hook:"Kya 100% charge karna battery ke liye best hai?",
+  script:"Modern phones charging ko manage karte hain, lekin battery ko har waqt extreme heat mein rakhna uski life ko affect kar sakta hai. Heat par dhyan do.",
+  shots:"1. Charging phone close-up\n2. Battery icon screen\n3. Heat symbol/text overlay\n4. Quick conclusion",
+  caption:"Phone ki battery bachani hai? Heat ko ignore mat karo. 🔋",
+  hashtags:"#techfacts #phonefacts #technology #hindifacts #reelideas",
+  duration:"18 sec",
+  difficulty:"Easy"
+},
+
+{
+  id:5,
+  category:"Business",
+  emoji:"💸",
+  theme:"one",
+  title:"₹0 Skill Challenge",
+  hook:"Paise nahi hain? Pehle earning skill banao.",
+  script:"30 din ke liye ek free skill choose karo: editing, design, coding ya sales. Roz ek ghanta seekho aur har hafte ek sample banao. Skill ka proof certificate se zyada powerful ho sakta hai.",
+  shots:"1. Empty pocket visual\n2. Phone learning screen\n3. Practice shot\n4. Finished sample",
+  caption:"₹0 se start karo. Skill ko asset banao.",
+  hashtags:"#skills #businessindia #earning #selfgrowth #hindireels",
+  duration:"25 sec",
+  difficulty:"Medium"
+},
+
+{
+  id:6,
+  category:"Attitude",
+  emoji:"😎",
+  theme:"three",
+  title:"Silent Progress",
+  hook:"Har plan duniya ko batana zaroori nahi hota.",
+  script:"Kuch goals announcement nahi maangte. Kaam chup-chaap karo. Result ko introduction dene do.",
+  shots:"1. Serious close-up\n2. Working alone\n3. Phone silent mode\n4. Confident walking shot",
+  caption:"Private life. Loud results. 😎",
+  hashtags:"#attitude #mindset #silentmoves #hindireels #confidence",
+  duration:"15 sec",
+  difficulty:"Easy"
+},
+
+{
+  id:7,
+  category:"Student",
+  emoji:"⏰",
+  theme:"two",
+  title:"Exam Tomorrow",
+  hook:"Exam kal hai aur syllabus bol raha hai: pehchana mujhe?",
+  script:"Day 1: Kal se padhunga.\nDay 10: Pakka kal se.\nExam night: Hey Google, 6 mahine ka syllabus 6 ghante mein kaise karein? 😭",
+  shots:"1. Calendar\n2. Phone scrolling\n3. Book ka huge stack\n4. Panic reaction",
+  caption:"Topper log comment section se door rahein. 😂",
+  hashtags:"#exam #studentcomedy #studentlife #relatable #reelsindia",
+  duration:"14 sec",
+  difficulty:"Easy"
+},
+
+{
+  id:8,
+  category:"Motivation",
+  emoji:"🚀",
+  theme:"one",
+  title:"1 Percent Rule",
+  hook:"Roz perfect nahi, bas 1% better.",
+  script:"Aaj 10 pages. Kal 11. Aaj 10 minute workout. Kal thoda aur. Chhoti improvements boring lagti hain, par consistency unhe powerful banati hai.",
+  shots:"1. Notebook checklist\n2. Reading\n3. Workout\n4. Calendar streak",
+  caption:"Small wins compound. 📈",
+  hashtags:"#1percentbetter #habits #motivationindia #growth #reelideas",
+  duration:"20 sec",
+  difficulty:"Easy"
+},
+
+{
+  id:9,
+  category:"Comedy",
+  emoji:"📱",
+  theme:"three",
+  title:"5 Minute Phone Break",
+  hook:"Bas 5 minute phone chalaunga…",
+  script:"5 minute ke liye phone uthaya.\nEk reel dekhi.\nPhir doosri.\nPhone rakha… aur calendar next month ka tha. 😂",
+  shots:"1. Clock close-up\n2. Scrolling acting\n3. Time-lapse expression\n4. Shock reaction",
+  caption:"5 minute ka break kis-kis ka 1 ghanta hota hai? 😂",
+  hashtags:"#reelsaddict #comedy #relatable #phone #hindicomedy",
+  duration:"10 sec",
+  difficulty:"Easy"
+},
+
+{
+  id:10,
+  category:"Business",
+  emoji:"📈",
+  theme:"two",
+  title:"First Customer Idea",
+  hook:"Business shuru karne se pehle logo nahi, customer dhoondo.",
+  script:"Perfect name, logo aur website par hafton mat lagao. Pehle ek real problem choose karo aur dekho kya koi tumhare solution ke liye pay karega.",
+  shots:"1. Fancy logo screen\n2. Cross mark\n3. Customer/chat visual\n4. Payment/result visual",
+  caption:"Validate first. Decorate later. 💡",
+  hashtags:"#business #startupindia #entrepreneur #marketing #hindireels",
+  duration:"25 sec",
+  difficulty:"Medium"
+}
+
+];
+
+let currentIdeas = [...ideas];
+let activeIdea = null;
+
+
+const feed = document.getElementById("feed");
+const sheetBackdrop = document.getElementById("sheetBackdrop");
+const toast = document.getElementById("toast");
+
+
+function renderFeed(list){
+
+  feed.innerHTML = "";
+
+  if(list.length === 0){
+
+    feed.innerHTML =
+      '<div class="empty">Is category mein abhi ideas nahi hain.</div>';
+
+    return;
+  }
+
+  list.forEach((idea,index) => {
+
+    const card = document.createElement("section");
+
+    card.className = "reel-card";
+
+    card.innerHTML = `
+      <div class="bg ${idea.theme === "one" ? "" : idea.theme}"></div>
+      <div class="pattern"></div>
+
+      <div class="center-content">
+
+        <div class="badge">
+          ${idea.emoji} ${idea.category}
+        </div>
+
+        <div class="hook-label">
+          VIRAL HOOK
+        </div>
+
+        <div class="hook">
+          “${idea.hook}”
+        </div>
+
+        <div class="meta">
+          <span>⏱️ ${idea.duration}</span>
+          <span>🎯 ${idea.difficulty}</span>
+          <span>🇮🇳 Hindi</span>
+        </div>
+
+      </div>
+
+      <div class="card-bottom">
+
+        <div class="idea-title">
+          ${idea.title}
+        </div>
+
+        <div class="actions">
+
+          <button
+            class="use-btn"
+            data-id="${idea.id}">
+            ✨ Use This Idea
+          </button>
+
+          <button
+            class="save-btn"
+            data-save="${idea.id}">
+            ♡
+          </button>
+
+        </div>
+
+        <div class="swipe">
+          ↑ Swipe for next idea
+        </div>
+
+      </div>
+    `;
+
+    feed.appendChild(card);
+
+  });
+
+  attachButtons();
+}
+
+
+function attachButtons(){
+
+  document.querySelectorAll(".use-btn").forEach(button => {
+
+    button.addEventListener("click", () => {
+
+      const id = Number(button.dataset.id);
+
+      activeIdea = ideas.find(item => item.id === id);
+
+      openSheet(activeIdea);
+
+    });
+
+  });
+
+
+  document.querySelectorAll(".save-btn").forEach(button => {
+
+    const id = Number(button.dataset.save);
+
+    const saved = getSaved();
+
+    if(saved.includes(id)){
+      button.textContent = "♥";
+    }
+
+    button.addEventListener("click", () => {
+
+      toggleSave(id,button);
+
+    });
+
+  });
+
+}
+
+
+function openSheet(idea){
+
+  document.getElementById("sheetCategory").textContent =
+    idea.emoji + " " + idea.category;
+
+  document.getElementById("sheetTitle").textContent =
+    idea.title;
+
+  document.getElementById("sheetHook").textContent =
+    idea.hook;
+
+  document.getElementById("sheetScript").textContent =
+    idea.script;
+
+  document.getElementById("sheetShots").textContent =
+    idea.shots;
+
+  document.getElementById("sheetCaption").textContent =
+    idea.caption;
+
+  document.getElementById("sheetHashtags").textContent =
+    idea.hashtags;
+
+  sheetBackdrop.classList.add("show");
+
+}
+
+
+function closeSheet(){
+
+  sheetBackdrop.classList.remove("show");
+
+}
+
+
+document.getElementById("closeSheet")
+.addEventListener("click",closeSheet);
+
+
+sheetBackdrop.addEventListener("click",event => {
+
+  if(event.target === sheetBackdrop){
+    closeSheet();
+  }
+
+});
+
+
+document.querySelectorAll(".chip").forEach(chip => {
+
+  chip.addEventListener("click",() => {
+
+    document.querySelectorAll(".chip")
+    .forEach(item => item.classList.remove("active"));
+
+    chip.classList.add("active");
+
+    const filter = chip.dataset.filter;
+
+    if(filter === "All"){
+      currentIdeas = [...ideas];
+    }
+    else{
+      currentIdeas =
+        ideas.filter(idea => idea.category === filter);
+    }
+
+    renderFeed(currentIdeas);
+    feed.scrollTop = 0;
+
+  });
+
+});
+
+
+function getSaved(){
+
+  try{
+    return JSON.parse(
+      localStorage.getItem("reelsathiSaved")
+    ) || [];
+  }
+  catch(error){
+    return [];
+  }
+
+}
+
+
+function toggleSave(id,button){
+
+  let saved = getSaved();
+
+  if(saved.includes(id)){
+
+    saved = saved.filter(item => item !== id);
+    button.textContent = "♡";
+
+    showToast("Removed");
+
+  }
+  else{
+
+    saved.push(id);
+    button.textContent = "♥";
+
+    showToast("Idea saved ❤️");
+
+  }
+
+  localStorage.setItem(
+    "reelsathiSaved",
+    JSON.stringify(saved)
+  );
+
+}
+
+
+function ideaToText(idea){
+
+  return `🎬 ${idea.title}
+
+🎣 HOOK:
+${idea.hook}
+
+📝 SCRIPT:
+${idea.script}
+
+📹 SHOT PLAN:
+${idea.shots}
+
+✍️ CAPTION:
+${idea.caption}
+
+#️⃣ HASHTAGS:
+${idea.hashtags}
+
+Made with ReelSathi ✨`;
+
+}
+
+
+document.getElementById("copyIdea")
+.addEventListener("click",async () => {
+
+  if(!activeIdea) return;
+
+  const text = ideaToText(activeIdea);
+
+  try{
+
+    await navigator.clipboard.writeText(text);
+    showToast("Copied ✅");
+
+  }
+  catch(error){
+
+    showToast("Copy failed");
+
+  }
+
+});
+
+
+document.getElementById("shareIdea")
+.addEventListener("click",async () => {
+
+  if(!activeIdea) return;
+
+  const text = ideaToText(activeIdea);
+
+  if(navigator.share){
+
+    try{
+
+      await navigator.share({
+        title:"ReelSathi Idea",
+        text:text
+      });
+
+    }
+    catch(error){}
+
+  }
+  else{
+
+    window.open(
+      "https://wa.me/?text=" +
+      encodeURIComponent(text),
+      "_blank"
+    );
+
+  }
+
+});
+
+
+function showToast(message){
+
+  toast.textContent = message;
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  },1600);
+
+}
+
+
+renderFeed(ideas);
+
+</script>
+
+</body>
+</html>
