@@ -532,6 +532,141 @@ button{
 .video-text-input:focus{
   border-color:#ff3d81;
 }
+  .camera-btn{
+  width:100%;
+  margin-bottom:10px;
+  padding:16px;
+  border:1px solid #34343d;
+  border-radius:14px;
+  background:#17171e;
+  color:white;
+  font-size:16px;
+  font-weight:800;
+}
+
+.camera-screen{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:#000;
+  overflow:hidden;
+}
+
+.camera-screen.show{
+  display:block;
+}
+
+#cameraPreview{
+  position:absolute;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  background:#000;
+}
+
+.camera-top{
+  position:absolute;
+  z-index:3;
+  top:0;
+  left:0;
+  right:0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:18px;
+  padding-top:max(18px,env(safe-area-inset-top));
+  background:linear-gradient(
+    to bottom,
+    rgba(0,0,0,.65),
+    transparent
+  );
+  font-weight:bold;
+}
+
+.camera-top button{
+  width:45px;
+  height:45px;
+  border:0;
+  border-radius:50%;
+  background:rgba(20,20,20,.65);
+  color:white;
+  font-size:20px;
+}
+
+.camera-filter-name{
+  position:absolute;
+  z-index:3;
+  top:85px;
+  left:50%;
+  transform:translateX(-50%);
+  padding:7px 13px;
+  border-radius:20px;
+  background:rgba(0,0,0,.45);
+  font-size:12px;
+}
+
+.camera-bottom{
+  position:absolute;
+  z-index:3;
+  left:0;
+  right:0;
+  bottom:0;
+  padding:15px 15px 25px;
+  background:linear-gradient(
+    to top,
+    rgba(0,0,0,.8),
+    transparent
+  );
+}
+
+.camera-filters{
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  padding-bottom:18px;
+  scrollbar-width:none;
+}
+
+.filter-chip{
+  flex:0 0 auto;
+  border:1px solid rgba(255,255,255,.35);
+  border-radius:20px;
+  background:rgba(0,0,0,.5);
+  color:white;
+  padding:9px 13px;
+}
+
+.filter-chip.active{
+  border-color:#ff3d81;
+  background:#ff3d81;
+}
+
+.record-btn{
+  display:block;
+  width:76px;
+  height:76px;
+  padding:6px;
+  margin:auto;
+  border:4px solid white;
+  border-radius:50%;
+  background:transparent;
+}
+
+.record-btn span{
+  display:block;
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  background:#ff304f;
+}
+
+.record-hint{
+  text-align:center;
+  margin-top:8px;
+  color:#ddd;
+  font-size:11px;
+}
 </style>
 </head>
 
@@ -632,6 +767,9 @@ button{
       </div>
     </div>
 
+    <button id="openCameraBtn" class="camera-btn" type="button">
+  📷 Open Camera
+</button>
     <label class="video-picker">
       🎥 Choose Video
 
@@ -663,6 +801,64 @@ button{
       maxlength="150"
       placeholder="Video par apna text likho..."
     ></textarea>
+
+  </div>
+
+</div>
+  <div id="cameraScreen" class="camera-screen">
+
+  <video
+    id="cameraPreview"
+    autoplay
+    muted
+    playsinline
+  ></video>
+
+  <div class="camera-top">
+    <button id="closeCameraBtn" type="button">✕</button>
+    <div>ReelSathi Camera</div>
+    <button id="flipCameraBtn" type="button">🔄</button>
+  </div>
+
+  <div class="camera-filter-name" id="cameraFilterName">
+    Original
+  </div>
+
+  <div class="camera-bottom">
+
+    <div class="camera-filters">
+      <button data-filter="none" class="filter-chip active">
+        Original
+      </button>
+
+      <button data-filter="brightness(1.12) saturate(1.15)" class="filter-chip">
+        ✨ Glow
+      </button>
+
+      <button data-filter="sepia(.22) saturate(1.25) contrast(1.05)" class="filter-chip">
+        🔥 Warm
+      </button>
+
+      <button data-filter="hue-rotate(175deg) saturate(.85)" class="filter-chip">
+        ❄️ Cool
+      </button>
+
+      <button data-filter="grayscale(1) contrast(1.12)" class="filter-chip">
+        ⚫ B&W
+      </button>
+
+      <button data-filter="sepia(.5) contrast(1.08)" class="filter-chip">
+        📼 Vintage
+      </button>
+    </div>
+
+    <button id="recordBtn" class="record-btn" type="button">
+      <span></span>
+    </button>
+
+    <div class="record-hint">
+      Tap to record
+    </div>
 
   </div>
 
@@ -1245,6 +1441,100 @@ videoCustomText.addEventListener("input", function(){
   else{
     videoText.textContent = "Your hook";
   }
+
+});
+  const cameraScreen = document.getElementById("cameraScreen");
+const openCameraBtn = document.getElementById("openCameraBtn");
+const closeCameraBtn = document.getElementById("closeCameraBtn");
+const flipCameraBtn = document.getElementById("flipCameraBtn");
+const cameraPreview = document.getElementById("cameraPreview");
+const cameraFilterName = document.getElementById("cameraFilterName");
+
+let cameraStream = null;
+let facingMode = "user";
+
+
+async function startCamera(){
+
+  try{
+
+    if(cameraStream){
+      cameraStream.getTracks().forEach(track => track.stop());
+    }
+
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video:{
+        facingMode:facingMode
+      },
+      audio:true
+    });
+
+    cameraPreview.srcObject = cameraStream;
+
+    cameraScreen.classList.add("show");
+
+  }
+  catch(error){
+
+    console.error(error);
+    showToast("Camera permission allow karein 📷");
+
+  }
+
+}
+
+
+function stopCamera(){
+
+  if(cameraStream){
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+
+  cameraPreview.srcObject = null;
+  cameraScreen.classList.remove("show");
+
+}
+
+
+openCameraBtn.addEventListener("click",startCamera);
+
+
+closeCameraBtn.addEventListener("click",function(){
+  stopCamera();
+});
+
+
+flipCameraBtn.addEventListener("click",async function(){
+
+  facingMode =
+    facingMode === "user"
+    ? "environment"
+    : "user";
+
+  await startCamera();
+
+});
+
+
+document.querySelectorAll(".filter-chip").forEach(button => {
+
+  button.addEventListener("click",function(){
+
+    document.querySelectorAll(".filter-chip")
+      .forEach(item => item.classList.remove("active"));
+
+    this.classList.add("active");
+
+    const filter = this.dataset.filter;
+
+    cameraPreview.style.filter =
+      filter === "none" ? "none" : filter;
+
+    cameraFilterName.textContent =
+      this.textContent.trim();
+
+  });
 
 });
 </script>
