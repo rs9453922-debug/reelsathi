@@ -2,111 +2,255 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#08090d">
-
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07080d">
 <title>ReelSathi</title>
+<link rel="stylesheet" href="styles.css">
+</head>
 
-<style>
-*{
-  box-sizing:border-box;
-}
+<body>
 
-html{
-  scroll-behavior:smooth;
-}
+<div id="app">
 
-body{
-  margin:0;
-  background:#08090d;
-  color:#fff;
-  font-family:Arial,sans-serif;
-  overscroll-behavior:none;
-}
+<header class="topbar">
+  <div class="brand">Reel<span>Sathi</span> ✨</div>
+  <button id="surpriseBtn" class="ghost">🎲 Surprise</button>
+</header>
 
-button{
-  font-family:inherit;
-}
+<section class="home">
 
-.app{
-  max-width:500px;
-  margin:auto;
-  min-height:100vh;
-}
+  <div class="search-wrap">
+    <input id="searchInput" placeholder="Reel idea search karo...">
+  </div>
 
-.topbar{
-  position:fixed;
-  top:0;
-  left:50%;
-  transform:translateX(-50%);
-  z-index:20;
-  width:100%;
-  max-width:500px;
-  padding:15px 16px 10px;
-  background:linear-gradient(
-    to bottom,
-    rgba(8,9,13,.98),
-    rgba(8,9,13,.75),
-    transparent
-  );
-}
+  <div id="categories" class="categories"></div>
 
-.brand{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
+  <div id="feed" class="feed"></div>
 
-.logo{
-  font-size:26px;
-  font-weight:900;
-}
+</section>
 
-.logo span{
-  color:#ff3d81;
-}
+<nav class="bottom-nav">
+  <button class="nav active" data-tab="feed">🏠<small>Ideas</small></button>
+  <button class="nav" id="cameraNav">📷<small>Camera</small></button>
+  <button class="nav" id="savedNav">❤️<small>Saved</small></button>
+</nav>
 
-.daily{
-  border:1px solid #34343d;
-  border-radius:20px;
-  background:#17171e;
-  color:#fff;
-  padding:8px 12px;
-  font-size:12px;
-}
+</div>
 
-.categories{
-  display:flex;
-  gap:8px;
-  margin-top:13px;
-  overflow-x:auto;
-  scrollbar-width:none;
-}
 
-.categories::-webkit-scrollbar{
-  display:none;
-}
+<!-- IDEA DETAIL -->
 
-.chip{
-  flex:0 0 auto;
-  border:1px solid #30303a;
-  background:#15151c;
-  color:#bbbcc6;
-  padding:9px 13px;
-  border-radius:20px;
-  font-size:13px;
-}
+<div id="ideaSheet" class="overlay">
+  <div class="sheet">
 
-.chip.active{
-  background:#fff;
-  color:#111;
-  border-color:#fff;
-  font-weight:bold;
-}
+    <button id="closeIdea" class="close">✕</button>
 
-.feed{
-  height:100vh;
-  overflow-y:auto;
+    <div id="detailCategory" class="pink"></div>
+    <h2 id="detailTitle"></h2>
+
+    <div class="info">
+      <b>🎣 Hook</b>
+      <div id="detailHook"></div>
+    </div>
+
+    <div class="info">
+      <b>📝 Script</b>
+      <div id="detailScript"></div>
+    </div>
+
+    <div class="info">
+      <b>🎥 Shot Plan</b>
+      <div id="detailShots"></div>
+    </div>
+
+    <div class="info">
+      <b>✍️ Caption</b>
+      <div id="detailCaption"></div>
+    </div>
+
+    <div class="info">
+      <b>#️⃣ Hashtags</b>
+      <div id="detailTags"></div>
+    </div>
+
+    <button id="createBtn" class="primary">
+      🎬 Create This Reel
+    </button>
+
+    <div class="dual">
+      <button id="copyBtn" class="light">📋 Copy</button>
+      <button id="shareBtn" class="green">↗ Share</button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- CREATOR -->
+
+<div id="creator" class="screen">
+
+  <header class="screen-head">
+    <button id="creatorBack">←</button>
+    <div>
+      <strong>Reel Creator 🎬</strong>
+      <small>Create • Edit • Share</small>
+    </div>
+  </header>
+
+  <main class="creator-body">
+
+    <div class="dual">
+      <button id="openCamera" class="primary">
+        📷 Camera
+      </button>
+
+      <label class="primary label-btn">
+        🎞️ Gallery
+        <input id="videoInput" type="file" accept="video/*" hidden>
+      </label>
+    </div>
+
+    <div id="stage" class="stage">
+
+      <video id="editorVideo"
+             playsinline
+             controls>
+      </video>
+
+      <div id="overlayText">Your Hook ✨</div>
+
+    </div>
+
+    <textarea id="textInput"
+      placeholder="Video par text..."
+      maxlength="180"></textarea>
+
+    <h3>✨ Filters</h3>
+    <div id="editorFilters" class="filter-row"></div>
+
+    <div class="controls">
+
+      <label>
+        Text size
+        <input id="textSize"
+               type="range"
+               min="18"
+               max="60"
+               value="30">
+      </label>
+
+      <label>
+        Text color
+        <input id="textColor"
+               type="color"
+               value="#ffffff">
+      </label>
+
+      <label>
+        Position
+        <select id="textPosition">
+          <option value="top">Top</option>
+          <option value="center">Center</option>
+          <option value="bottom" selected>Bottom</option>
+        </select>
+      </label>
+
+    </div>
+
+    <h3>🎵 Audio</h3>
+
+    <label class="audio-picker">
+      🎵 Add your music/audio
+      <input id="audioInput"
+             type="file"
+             accept="audio/*"
+             hidden>
+    </label>
+
+    <audio id="audioPlayer" controls></audio>
+
+    <p class="note">
+      Apna ya properly licensed audio use karein.
+    </p>
+
+    <div class="dual">
+      <button id="downloadVideo" class="primary">
+        ⬇️ Save Video
+      </button>
+
+      <button id="shareVideo" class="green">
+        ↗ Share
+      </button>
+    </div>
+
+  </main>
+
+</div>
+
+
+<!-- CAMERA -->
+
+<div id="camera" class="camera">
+
+  <video id="cameraPreview"
+         autoplay
+         muted
+         playsinline>
+  </video>
+
+  <div class="camera-head">
+
+    <button id="cameraClose">✕</button>
+
+    <strong>ReelSathi</strong>
+
+    <button id="cameraFlip">🔄</button>
+
+  </div>
+
+  <div id="filterName" class="filter-name">
+    Original
+  </div>
+
+  <div class="camera-tools">
+
+    <select id="recordLimit">
+      <option value="15">15s</option>
+      <option value="30" selected>30s</option>
+      <option value="60">60s</option>
+    </select>
+
+  </div>
+
+  <div class="camera-bottom">
+
+    <div id="cameraFilters"
+         class="filter-row camera-filter-row">
+    </div>
+
+    <div id="timer">00:00</div>
+
+    <button id="recordButton" class="record">
+      <span></span>
+    </button>
+
+    <small>
+      Hold/tap record • slide up/down for zoom if supported
+    </small>
+
+  </div>
+
+</div>
+
+
+<div id="toast" class="toast"></div>
+
+<script src="templates.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>  overflow-y:auto;
   scroll-snap-type:y mandatory;
   scrollbar-width:none;
 }
